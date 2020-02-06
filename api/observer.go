@@ -42,7 +42,7 @@ func addCall(storage storage.Addresses) func(c *gin.Context) {
 			ginutils.RenderSuccess(c, blockatlas.Observer{Message: "Added", Status: true})
 			return
 		}
-		subs := parseSubscriptions(req.Subscriptions, req.Webhook)
+		subs := req.ParseSubscriptions()
 		go storage.AddSubscriptions(subs)
 
 		ginutils.RenderSuccess(c, blockatlas.Observer{Message: "Added", Status: true})
@@ -112,21 +112,4 @@ func statusCall(storage storage.Tracker) func(c *gin.Context) {
 		}
 		ginutils.RenderSuccess(c, result)
 	}
-}
-
-func parseSubscriptions(subscriptions map[string][]string, webhook string) (subs []blockatlas.Subscription) {
-	for coinStr, perCoin := range subscriptions {
-		coin, err := strconv.Atoi(coinStr)
-		if err != nil {
-			continue
-		}
-		for _, addr := range perCoin {
-			subs = append(subs, blockatlas.Subscription{
-				Coin:    uint(coin),
-				Address: addr,
-				Webhook: webhook,
-			})
-		}
-	}
-	return
 }
